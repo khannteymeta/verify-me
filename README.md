@@ -41,15 +41,18 @@ src/
   middleware.ts               /dashboard/* without a cookie → /login
   app/
     login/page.tsx            server: redirects if already signed in
-    login/login-form.tsx      client: two-step form (shadcn Card, Input, InputOTP)
+    login/login-form.tsx      client: two-step form (shadcn Card, Input, InputOTP); mode="register" adds a name field
+    register/page.tsx         sign-up page (same form, mode="register")
     dashboard/page.tsx        protected page + sign-out
-    api/auth/start/route.ts   send code
+    api/auth/start/route.ts   send code (sign in)
+    api/auth/register/route.ts  name + target → 409 if taken, else send code (sign up)
     api/auth/verify/route.ts  check code → user → session
     api/auth/logout/route.ts
   lib/
     session.ts                sessions + pending codes in Redis, getCurrentUser()
     users.ts                  Postgres queries
     verifyme.ts               SDK client + error → response mapping
+    send-code.ts              rate limit + verifyme.send() + save pending (shared by start/register)
     rate-limit.ts, validation.ts, db.ts, redis.ts
   components/ui/              shadcn components (button, card, input, label, input-otp)
 db/schema.sql

@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { ArrowLeft, Loader2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -30,8 +31,16 @@ async function post<T>(path: string, body: unknown): Promise<T> {
   return data as T;
 }
 
-export function LoginForm({ redirectTo }: { redirectTo: string }) {
+export function LoginForm({
+  redirectTo,
+  mode = "login",
+}: {
+  redirectTo: string;
+  mode?: "login" | "register";
+}) {
   const router = useRouter();
+  const registering = mode === "register";
+  const [name, setName] = useState("");
   const [step, setStep] = useState<"target" | "code">("target");
   const [target, setTarget] = useState("");
   const [channel, setChannel] = useState<"email" | "sms">("email");
@@ -50,7 +59,9 @@ export function LoginForm({ redirectTo }: { redirectTo: string }) {
     setBusy(true);
     setError(null);
     try {
-      const r = await post<{ channel: "email" | "sms" }>("/api/auth/start", { target });
+      const r = registering
+        ? await post<{ channel: "email" | "sms" }>("/api/auth/register", { name, target })
+        : await post<{ channel: "email" | "sms" }>("/api/auth/start", { target });
       setChannel(r.channel);
       setCode("");
       setStep("code");
@@ -87,10 +98,24 @@ export function LoginForm({ redirectTo }: { redirectTo: string }) {
           className="flex flex-col gap-6"
         >
           <CardHeader>
-            <CardTitle className="text-2xl">Sign in</CardTitle>
+            <CardTitle className="text-2xl">{registering ? "Create account" : "Sign in"}</CardTitle>
             <CardDescription>We&apos;ll send you a one-time code.</CardDescription>
           </CardHeader>
           <CardContent className="grid gap-2">
+            {registering && (
+              <>
+                <Label htmlFor="name">Name</Label>
+                <Input
+                  id="name"
+                  autoComplete="name"
+                  maxLength={100}
+                  value={name}
+                  onChange={(e) => setName(e.target.value)}
+                  autoFocus
+                  required
+                />
+              </>
+            )}
             <Label htmlFor="target">Email or phone</Label>
             <Input
               id="target"
@@ -99,16 +124,29 @@ export function LoginForm({ redirectTo }: { redirectTo: string }) {
               value={target}
               onChange={(e) => setTarget(e.target.value)}
               aria-invalid={!!error}
-              autoFocus
+              autoFocus={!registering}
               required
             />
             {error && <p className="text-destructive text-sm">{error}</p>}
           </CardContent>
-          <CardFooter>
-            <Button type="submit" className="w-full" disabled={busy || !target.trim()}>
+          <CardFooter className="flex flex-col gap-3">
+            <Button
+              type="submit"
+              className="w-full"
+              disabled={busy || !target.trim() || (registering && !name.trim())}
+            >
               {busy && <Loader2 className="animate-spin" />}
               Send code
             </Button>
+            <p className="text-muted-foreground text-sm">
+              {registering ? "Already have an account? " : "New here? "}
+              <Link
+                href={registering ? "/login" : "/register"}
+                className="text-foreground underline underline-offset-4"
+              >
+                {registering ? "Sign in" : "Create an account"}
+              </Link>
+            </p>
           </CardFooter>
         </form>
       </Card>

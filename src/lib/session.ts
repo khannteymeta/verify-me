@@ -64,7 +64,11 @@ export const getCurrentUser = cache(async () => {
 // The Verifyme token is a credential — it lives in Redis, never in the browser.
 // ---------------------------------------------------------------------------
 
-type PendingData = { token: string; target: string; channel: Channel };
+/** What the code is for: signing in, or creating an account with this name. */
+export type PendingPurpose = { kind: "login" } | { kind: "register"; name: string };
+
+// `purpose` is optional so codes sent before it existed still verify (as login).
+type PendingData = { token: string; target: string; channel: Channel; purpose?: PendingPurpose };
 
 export async function savePending(data: PendingData) {
   const id = newId();

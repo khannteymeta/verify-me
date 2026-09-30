@@ -21,7 +21,9 @@ export default async function DashboardPage() {
     <main className="flex min-h-svh items-center justify-center p-4">
       <Card className="w-full max-w-md">
         <CardHeader>
-          <CardTitle className="text-2xl">You&apos;re signed in</CardTitle>
+          <CardTitle className="text-2xl">
+            {user.name ? `Hi, ${user.name}` : "You're signed in"}
+          </CardTitle>
           <CardDescription>{user.email ?? user.phone}</CardDescription>
         </CardHeader>
         <CardContent>

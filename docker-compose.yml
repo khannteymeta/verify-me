@@ -6,7 +6,7 @@ services:
       POSTGRES_PASSWORD: app
       POSTGRES_DB: app
     ports:
-      - "5432:5432"
+      - "5435:5432" # 5432-5434 are taken by other local Postgres instances
     volumes:
       - pgdata:/var/lib/postgresql/data
       # Runs once, on first start with an empty volume
@@ -15,7 +15,7 @@ services:
   redis:
     image: redis:7-alpine
     ports:
-      - "6379:6379"
+      - "6381:6379" # 6379 is often taken by another local Redis
 
 volumes:
   pgdata:

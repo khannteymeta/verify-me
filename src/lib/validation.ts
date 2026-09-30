@@ -17,3 +17,11 @@ export function parseTarget(raw: unknown): Target | null {
 export function isCode(raw: unknown): raw is string {
   return typeof raw === "string" && /^\d{4,8}$/.test(raw);
 }
+
+/** Display name for sign-up: trimmed, whitespace collapsed, 1–100 chars. */
+export function parseName(raw: unknown): string | null {
+  if (typeof raw !== "string") return null;
+  const value = raw.trim().replace(/\s+/g, " ");
+  if (!value || value.length > 100) return null;
+  return value;
+}
